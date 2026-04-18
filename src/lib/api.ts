@@ -1,13 +1,7 @@
 import axios from "axios";
+import API_BASE from "@/lib/api-config";
 import type { UserRole } from "@/lib/auth";
 
-const DEFAULT_API_BASE = "https://your-railway-backend.up.railway.app";
-const configuredApiBase = import.meta.env.VITE_FLASK_API_URL?.trim() || import.meta.env.VITE_API_BASE?.trim();
-const isLocalApiBase =
-  !!configuredApiBase &&
-  (configuredApiBase.includes("localhost") || configuredApiBase.includes("127.0.0.1"));
-
-export const API_BASE = configuredApiBase && !isLocalApiBase ? configuredApiBase : DEFAULT_API_BASE;
 export const FLASK_API_URL = API_BASE;
 
 export type AuthApiPayload = {
@@ -20,9 +14,6 @@ export type AuthApiResponse = {
   user_id: string;
   email: string;
   role: UserRole;
-  token?: string;
-  access_token?: string;
-  jwt?: string;
   message?: string;
 };
 
@@ -49,6 +40,7 @@ function extractErrorMessage(payload: unknown, fallbackMessage: string) {
 export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}) {
   const response = await fetch(`${API_BASE}${path}`, {
     ...options,
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       ...(options.headers || {}),
@@ -86,6 +78,7 @@ export async function loginRequest(payload: AuthApiPayload) {
 
 export const api = axios.create({
   baseURL: API_BASE,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },

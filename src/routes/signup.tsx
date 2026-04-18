@@ -4,14 +4,20 @@ import { ArrowRight, LoaderCircle, Lock, Mail, Sparkles, UserRoundPlus } from "l
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
-import { loginRequest, signupRequest } from "@/lib/api";
-import { AUTH_ROLES, getDashboardRoute, resolveSessionToken, type UserRole } from "@/lib/auth";
+import { signupRequest } from "@/lib/api";
+import { getDashboardRoute, type UserRole } from "@/lib/auth";
 
 const ROLE_OPTIONS: Array<{ value: UserRole; label: string }> = [
   { value: "donor", label: "Donor" },
   { value: "ngo", label: "NGO" },
-  { value: "volunteer", label: "Volunteer" },
 ];
 
 export const Route = createFileRoute("/signup")({
@@ -26,7 +32,7 @@ export const Route = createFileRoute("/signup")({
 
 function SignupPage() {
   const navigate = useNavigate();
-  const { user, isReady, login } = useAuth();
+  const { user, isReady } = useAuth();
 
   const [role, setRole] = useState<UserRole>("donor");
   const [email, setEmail] = useState("");
@@ -55,47 +61,12 @@ function SignupPage() {
     const normalizedEmail = email.trim().toLowerCase();
 
     try {
-      const signupResponse = await signupRequest({
+      await signupRequest({
         email: normalizedEmail,
         password,
         role,
       });
-
-      if (signupResponse.role && !AUTH_ROLES.includes(signupResponse.role)) {
-        throw new Error("Unsupported account role returned by server.");
-      }
-
-      const loginResponse = await loginRequest({
-        email: normalizedEmail,
-        password,
-        role,
-      });
-
-      if (!AUTH_ROLES.includes(loginResponse.role)) {
-        throw new Error("Unsupported account role returned by server.");
-      }
-
-      if (loginResponse.role !== role) {
-        throw new Error(`This account belongs to ${loginResponse.role.toUpperCase()}. Please choose the correct role.`);
-      }
-
-      if (!loginResponse.user_id || !loginResponse.email) {
-        throw new Error("Invalid auth response from server.");
-      }
-
-      const session = {
-        user_id: loginResponse.user_id,
-        email: loginResponse.email,
-        role: loginResponse.role,
-        token: resolveSessionToken(loginResponse, {
-          user_id: loginResponse.user_id,
-          email: loginResponse.email,
-          role: loginResponse.role,
-        }),
-      };
-
-      login(session);
-      navigate({ to: getDashboardRoute(session.role), replace: true });
+      navigate({ to: "/login", replace: true, search: { redirect: getDashboardRoute(role) } });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Server error");
     } finally {
@@ -125,7 +96,7 @@ function SignupPage() {
               Join the network and start rescuing meals.
             </h1>
             <p className="mt-5 max-w-md text-base font-medium leading-relaxed text-white/70">
-              Create your donor, NGO, or volunteer account and get access to role-based dashboards instantly.
+              Create your donor or NGO account and get access to your role-based dashboard instantly.
             </p>
           </div>
 
@@ -147,34 +118,25 @@ function SignupPage() {
               <p className="mt-2 text-sm font-medium text-slate-500">Choose your role and complete your signup details.</p>
             </div>
 
-            <div className="mb-6 rounded-2xl border border-slate-200 bg-slate-50 p-1.5">
-              <div className="grid grid-cols-3 gap-1.5">
-                {ROLE_OPTIONS.map((item) => (
-                  <button
-                    key={item.value}
-                    type="button"
-                    onClick={() => setRole(item.value)}
-                    className={`rounded-xl px-3 py-2.5 text-xs font-black uppercase tracking-[0.18em] transition-smooth ${
-                      role === item.value
-                        ? "bg-slate-900 text-white shadow-sm"
-                        : "text-slate-500 hover:bg-white hover:text-slate-900"
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <Button
-              type="button"
-              variant="outline"
-              className="mb-6 h-12 w-full rounded-2xl border-slate-200 bg-white font-semibold text-slate-700"
-            >
-              Continue with Google
-            </Button>
-
             <form onSubmit={onSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="role" className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
+                  Role
+                </Label>
+                <Select value={role} onValueChange={(value) => setRole(value as UserRole)}>
+                  <SelectTrigger id="role" className="h-12 rounded-2xl border-slate-200 bg-white font-medium">
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ROLE_OPTIONS.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
                   Email

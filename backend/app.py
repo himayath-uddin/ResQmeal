@@ -16,9 +16,7 @@ app = Flask(__name__)
 
 CORS(app, resources={
     r"/*": {
-        "origins": [
-            "https://reqml.vercel.app"
-        ]
+        "origins": ["https://reqml.vercel.app"]
     }
 }, supports_credentials=True)
 
@@ -43,6 +41,14 @@ def serialize_user(user):
         "email": user["email"],
         "role": user["role"],
     }
+
+@app.after_request
+def after_request(response):
+    response.headers["Access-Control-Allow-Origin"] = "https://reqml.vercel.app"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
+    response.headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,OPTIONS"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    return response
 
 @app.route("/", methods=["GET"])
 def index():

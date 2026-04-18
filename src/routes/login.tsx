@@ -4,9 +4,16 @@ import { ArrowRight, LoaderCircle, Lock, Mail, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { loginRequest } from "@/lib/api";
-import { AUTH_ROLES, getDashboardRoute, resolveSessionToken, type UserRole } from "@/lib/auth";
+import { getDashboardRoute, type UserRole } from "@/lib/auth";
 
 type LoginSearch = {
   redirect?: string;
@@ -15,7 +22,6 @@ type LoginSearch = {
 const ROLE_OPTIONS: Array<{ value: UserRole; label: string }> = [
   { value: "donor", label: "Donor" },
   { value: "ngo", label: "NGO" },
-  { value: "volunteer", label: "Volunteer" },
 ];
 
 export const Route = createFileRoute("/login")({
@@ -62,10 +68,6 @@ function LoginPage() {
         role,
       });
 
-      if (!AUTH_ROLES.includes(data.role)) {
-        throw new Error("Unsupported account role returned by server.");
-      }
-
       if (data.role !== role) {
         throw new Error(`This account belongs to ${data.role.toUpperCase()}. Please choose the correct role.`);
       }
@@ -78,11 +80,6 @@ function LoginPage() {
         user_id: data.user_id,
         email: data.email,
         role: data.role,
-        token: resolveSessionToken(data, {
-          user_id: data.user_id,
-          email: data.email,
-          role: data.role,
-        }),
       };
 
       login(session);
@@ -135,34 +132,25 @@ function LoginPage() {
               <p className="mt-2 text-sm font-medium text-slate-500">Choose your role and continue to your dashboard.</p>
             </div>
 
-            <div className="mb-6 rounded-2xl border border-slate-200 bg-slate-50 p-1.5">
-              <div className="grid grid-cols-3 gap-1.5">
-                {ROLE_OPTIONS.map((item) => (
-                  <button
-                    key={item.value}
-                    type="button"
-                    onClick={() => setRole(item.value)}
-                    className={`rounded-xl px-3 py-2.5 text-xs font-black uppercase tracking-[0.18em] transition-smooth ${
-                      role === item.value
-                        ? "bg-slate-900 text-white shadow-sm"
-                        : "text-slate-500 hover:bg-white hover:text-slate-900"
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <Button
-              type="button"
-              variant="outline"
-              className="mb-6 h-12 w-full rounded-2xl border-slate-200 bg-white font-semibold text-slate-700"
-            >
-              Continue with Google
-            </Button>
-
             <form onSubmit={onSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="role" className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
+                  Role
+                </Label>
+                <Select value={role} onValueChange={(value) => setRole(value as UserRole)}>
+                  <SelectTrigger id="role" className="h-12 rounded-2xl border-slate-200 bg-white font-medium">
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ROLE_OPTIONS.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
                   Email
