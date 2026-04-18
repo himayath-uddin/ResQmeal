@@ -1,21 +1,7 @@
 import axios from "axios";
 import API_BASE from "@/lib/api-config";
-import type { UserRole } from "@/lib/auth";
 
 export const FLASK_API_URL = API_BASE;
-
-export type AuthApiPayload = {
-  email: string;
-  password: string;
-  role: UserRole;
-};
-
-export type AuthApiResponse = {
-  user_id: string;
-  email: string;
-  role: UserRole;
-  message?: string;
-};
 
 type ApiRequestOptions = Omit<RequestInit, "body" | "headers"> & {
   body?: unknown;
@@ -64,20 +50,6 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   }
 
   return payload as T;
-}
-
-export async function signupRequest(payload: AuthApiPayload) {
-  return apiRequest<AuthApiResponse>("/auth/signup", {
-    method: "POST",
-    body: payload,
-  });
-}
-
-export async function loginRequest(payload: AuthApiPayload) {
-  return apiRequest<AuthApiResponse>("/auth/login", {
-    method: "POST",
-    body: payload,
-  });
 }
 
 export const api = axios.create({

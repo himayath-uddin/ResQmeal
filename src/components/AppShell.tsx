@@ -30,9 +30,18 @@ const ngoNav = [
   { to: "/analytics", label: "Insights", icon: Sparkles },
 ];
 
+const volunteerNav = [
+  { to: "/tracking", label: "Volunteer Dashboard", icon: LayoutDashboard },
+  { to: "/analytics", label: "Insights", icon: Sparkles },
+];
+
 function getRoleLabel(role: UserRole) {
   if (role === "ngo") {
     return "NGO";
+  }
+
+  if (role === "volunteer") {
+    return "Volunteer";
   }
 
   return "Donor";
@@ -45,6 +54,10 @@ function getRoleNavigation(role: UserRole) {
 
   if (role === "ngo") {
     return ngoNav;
+  }
+
+  if (role === "volunteer") {
+    return volunteerNav;
   }
 
   return donorNav;

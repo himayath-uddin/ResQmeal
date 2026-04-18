@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
-import { loginRequest } from "@/lib/api";
+import { loginWithEmail, loginWithGoogle } from "@/lib/firebase-auth";
 import { getDashboardRoute, type UserRole } from "@/lib/auth";
 
 type LoginSearch = {
@@ -22,6 +22,7 @@ type LoginSearch = {
 const ROLE_OPTIONS: Array<{ value: UserRole; label: string }> = [
   { value: "donor", label: "Donor" },
   { value: "ngo", label: "NGO" },
+  { value: "volunteer", label: "Volunteer" },
 ];
 
 export const Route = createFileRoute("/login")({
@@ -62,28 +63,29 @@ function LoginPage() {
     const normalizedEmail = email.trim().toLowerCase();
 
     try {
-      const data = await loginRequest({
-        email: normalizedEmail,
-        password,
-        role,
-      });
+      const data = await loginWithEmail(normalizedEmail, password);
 
       if (data.role !== role) {
         throw new Error(`This account belongs to ${data.role.toUpperCase()}. Please choose the correct role.`);
       }
 
-      if (!data.user_id || !data.email) {
-        throw new Error("Invalid auth response from server.");
-      }
+      login(data);
+      navigate({ to: search.redirect || getDashboardRoute(data.role), replace: true });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Server error");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-      const session = {
-        user_id: data.user_id,
-        email: data.email,
-        role: data.role,
-      };
+  const onGoogleLogin = async () => {
+    setError("");
+    setSubmitting(true);
 
-      login(session);
-      navigate({ to: search.redirect || getDashboardRoute(session.role), replace: true });
+    try {
+      const data = await loginWithGoogle(role);
+      login(data);
+      navigate({ to: search.redirect || getDashboardRoute(data.role), replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Server error");
     } finally {
@@ -131,6 +133,16 @@ function LoginPage() {
               <h1 className="text-3xl font-black tracking-tight text-slate-900">Sign in</h1>
               <p className="mt-2 text-sm font-medium text-slate-500">Choose your role and continue to your dashboard.</p>
             </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              disabled={submitting}
+              onClick={onGoogleLogin}
+              className="mb-6 h-12 w-full rounded-2xl border-slate-200 bg-white font-semibold text-slate-700"
+            >
+              {submitting ? "Connecting..." : "Continue with Google"}
+            </Button>
 
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="space-y-2">

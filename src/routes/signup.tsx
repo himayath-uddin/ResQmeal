@@ -12,12 +12,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
-import { signupRequest } from "@/lib/api";
+import { loginWithGoogle, signupWithEmail } from "@/lib/firebase-auth";
 import { getDashboardRoute, type UserRole } from "@/lib/auth";
 
 const ROLE_OPTIONS: Array<{ value: UserRole; label: string }> = [
   { value: "donor", label: "Donor" },
   { value: "ngo", label: "NGO" },
+  { value: "volunteer", label: "Volunteer" },
 ];
 
 export const Route = createFileRoute("/signup")({
@@ -32,7 +33,7 @@ export const Route = createFileRoute("/signup")({
 
 function SignupPage() {
   const navigate = useNavigate();
-  const { user, isReady } = useAuth();
+  const { user, isReady, login } = useAuth();
 
   const [role, setRole] = useState<UserRole>("donor");
   const [email, setEmail] = useState("");
@@ -61,12 +62,24 @@ function SignupPage() {
     const normalizedEmail = email.trim().toLowerCase();
 
     try {
-      await signupRequest({
-        email: normalizedEmail,
-        password,
-        role,
-      });
-      navigate({ to: "/login", replace: true, search: { redirect: getDashboardRoute(role) } });
+      const data = await signupWithEmail(normalizedEmail, password, role);
+      login(data);
+      navigate({ to: getDashboardRoute(data.role), replace: true });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Server error");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const onGoogleSignup = async () => {
+    setError("");
+    setSubmitting(true);
+
+    try {
+      const data = await loginWithGoogle(role);
+      login(data);
+      navigate({ to: getDashboardRoute(data.role), replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Server error");
     } finally {
@@ -96,7 +109,7 @@ function SignupPage() {
               Join the network and start rescuing meals.
             </h1>
             <p className="mt-5 max-w-md text-base font-medium leading-relaxed text-white/70">
-              Create your donor or NGO account and get access to your role-based dashboard instantly.
+              Create your donor, NGO, or volunteer account and get access to your role-based dashboard instantly.
             </p>
           </div>
 
@@ -117,6 +130,16 @@ function SignupPage() {
               <h1 className="text-3xl font-black tracking-tight text-slate-900">Create account</h1>
               <p className="mt-2 text-sm font-medium text-slate-500">Choose your role and complete your signup details.</p>
             </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              disabled={submitting}
+              onClick={onGoogleSignup}
+              className="mb-6 h-12 w-full rounded-2xl border-slate-200 bg-white font-semibold text-slate-700"
+            >
+              {submitting ? "Connecting..." : "Continue with Google"}
+            </Button>
 
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="space-y-2">
