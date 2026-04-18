@@ -1,3 +1,4 @@
+print("🚀 NEW BACKEND DEPLOYED WITH CORS FIX")
 import os
 import re
 from datetime import datetime, timezone
@@ -16,10 +17,8 @@ app = Flask(__name__)
 
 CORS(
     app,
-    origins=["https://reqml.vercel.app"],
-    supports_credentials=True,
-    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization"]
+    resources={r"/*": {"origins": "*"}},
+    supports_credentials=True
 )
 
 client = MongoClient(os.getenv("MONGO_URI"))
@@ -44,29 +43,22 @@ def serialize_user(user):
         "role": user["role"],
     }
 
-@app.before_request
-def handle_options():
-    if request.method == "OPTIONS":
-        response = make_response()
-        response.headers["Access-Control-Allow-Origin"] = "https://reqml.vercel.app"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-        response.headers["Access-Control-Allow-Credentials"] = "true"
-        return response
-
 @app.after_request
 def after_request(response):
-    response.headers["Access-Control-Allow-Origin"] = "https://reqml.vercel.app"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
-    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-    response.headers["Access-Control-Allow-Credentials"] = "true"
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
+    response.headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,OPTIONS"
     return response
 
-@app.route("/", methods=["GET"])
+@app.route('/<path:path>', methods=['OPTIONS'])
+def options_handler(path):
+    return '', 200
+
+@app.route("/", methods=["GET", "OPTIONS"])
 def index():
     return jsonify({"status": "Backend is running", "database": "Connected to MongoDB"}), 200
 
-@app.route("/auth/signup", methods=["POST"])
+@app.route("/auth/signup", methods=["POST", "OPTIONS"])
 def signup():
     try:
         data = request.json or {}
@@ -77,8 +69,8 @@ def signup():
         if not email or not password or not role:
             return jsonify({"error": "Email, password, and role are required."}), 400
 
-        if role not in {"donor", "ngo"}:
-            return jsonify({"error": "Role must be either 'donor' or 'ngo'."}), 400
+        if role not in {"donor", "ngo", "volunteer"}:
+            return jsonify({"error": "Role must be 'donor', 'ngo', or 'volunteer'."}), 400
 
         existing_user = db.users.find_one({"email": email})
         if existing_user:
@@ -100,7 +92,7 @@ def signup():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-@app.route("/auth/login", methods=["POST"])
+@app.route("/auth/login", methods=["POST", "OPTIONS"])
 def login():
     try:
         data = request.json or {}
@@ -121,7 +113,7 @@ def login():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-@app.route("/food/create", methods=["POST"])
+@app.route("/food/create", methods=["POST", "OPTIONS"])
 def create_food():
     try:
         data = request.json
@@ -155,7 +147,7 @@ def create_food():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-@app.route("/food/all", methods=["GET"])
+@app.route("/food/all", methods=["GET", "OPTIONS"])
 def get_all_food():
     try:
         items = list(db.food_listings.find().sort("created_at", -1))
@@ -179,7 +171,7 @@ def get_all_food():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-@app.route("/food/nearby", methods=["GET"])
+@app.route("/food/nearby", methods=["GET", "OPTIONS"])
 def get_nearby():
     try:
         lat = float(request.args.get('lat', 0))
@@ -215,7 +207,7 @@ def get_nearby():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-@app.route("/food/<id>/claim", methods=["PATCH"])
+@app.route("/food/<id>/claim", methods=["PATCH", "OPTIONS"])
 def claim_food(id):
     try:
         data = request.json
@@ -242,7 +234,7 @@ def claim_food(id):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-@app.route("/food/<id>/status", methods=["PATCH"])
+@app.route("/food/<id>/status", methods=["PATCH", "OPTIONS"])
 def update_status(id):
     try:
         status = request.json.get("status")
