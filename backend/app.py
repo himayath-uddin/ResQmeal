@@ -13,7 +13,14 @@ from geopy.distance import geodesic
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+
+CORS(app, resources={
+    r"/*": {
+        "origins": [
+            "https://reqml.vercel.app"
+        ]
+    }
+}, supports_credentials=True)
 
 client = MongoClient(os.getenv("MONGO_URI"))
 db = client["resqmeal"]
