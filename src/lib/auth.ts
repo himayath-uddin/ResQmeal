@@ -13,14 +13,14 @@ export function isValidRole(role: unknown): role is UserRole {
 
 export function getDashboardRoute(role: UserRole) {
   if (role === "donor") {
-    return "/donate";
+    return "/donor-dashboard";
   }
 
   if (role === "ngo") {
-    return "/ngo";
+    return "/ngo-dashboard";
   }
 
-  return "/tracking";
+  return "/volunteer-dashboard";
 }
 
 export function getUserLabel(email: string) {

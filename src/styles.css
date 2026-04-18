@@ -129,13 +129,17 @@
 
 @layer base {
   * { border-color: var(--color-border); }
+  * { min-width: 0; }
   body {
     background: var(--gradient-hero);
     background-attachment: fixed;
     color: var(--color-foreground);
     font-feature-settings: "cv11", "ss01";
     min-height: 100vh;
+    overflow-x: hidden;
   }
+  img, svg, video, canvas { max-width: 100%; }
+  button, a, span, p, div, h1, h2, h3, h4 { overflow-wrap: anywhere; }
   h1, h2, h3, h4 { letter-spacing: -0.02em; }
 }
 

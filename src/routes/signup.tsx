@@ -1,18 +1,12 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, LoaderCircle, Lock, Mail, Sparkles, UserRoundPlus } from "lucide-react";
+import { ArrowRight, Building2, Heart, Home, LoaderCircle, Lock, Mail, Sparkles, Truck, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
-import { loginWithGoogle, signupWithEmail } from "@/lib/firebase-auth";
+import { signupWithEmail, signupWithGoogle } from "@/lib/firebase-auth";
 import { getDashboardRoute, type UserRole } from "@/lib/auth";
 
 const ROLE_OPTIONS: Array<{ value: UserRole; label: string }> = [
@@ -20,6 +14,12 @@ const ROLE_OPTIONS: Array<{ value: UserRole; label: string }> = [
   { value: "ngo", label: "NGO" },
   { value: "volunteer", label: "Volunteer" },
 ];
+
+const ROLE_DETAILS: Record<UserRole, { icon: typeof Heart; description: string }> = {
+  donor: { icon: Heart, description: "Share extra meals in seconds" },
+  ngo: { icon: Building2, description: "Receive and distribute food fast" },
+  volunteer: { icon: Truck, description: "Coordinate pickups and delivery" },
+};
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
@@ -77,7 +77,7 @@ function SignupPage() {
     setSubmitting(true);
 
     try {
-      const data = await loginWithGoogle(role);
+      const data = await signupWithGoogle(role);
       login(data);
       navigate({ to: getDashboardRoute(data.role), replace: true });
     } catch (err) {
@@ -91,14 +91,20 @@ function SignupPage() {
     <div className="min-h-screen bg-[#F5F7FB] px-6 py-10 text-foreground">
       <div className="mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-6xl overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_30px_90px_-40px_rgba(15,23,42,0.45)]">
         <aside className="hidden w-1/2 flex-col justify-between bg-[radial-gradient(circle_at_5%_5%,rgba(251,146,60,0.33),transparent_50%),linear-gradient(160deg,#111827,#1f2937_55%,#312e81)] p-10 text-white lg:flex">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 backdrop-blur">
-              <UserRoundPlus className="h-5 w-5 text-amber-300" />
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 backdrop-blur">
+                <UserRoundPlus className="h-5 w-5 text-amber-300" />
+              </div>
+              <div>
+                <div className="text-xl font-black tracking-tight">ResQMeal</div>
+                <div className="text-xs font-bold uppercase tracking-[0.28em] text-amber-200/75">Create Account</div>
+              </div>
             </div>
-            <div>
-              <div className="text-xl font-black tracking-tight">ResQMeal</div>
-              <div className="text-xs font-bold uppercase tracking-[0.28em] text-amber-200/75">Create Account</div>
-            </div>
+            <Link to="/" className="inline-flex items-center gap-2 text-sm font-bold text-white/80 transition hover:text-white">
+              <Home className="h-4 w-4" />
+              Back to Home
+            </Link>
           </div>
 
           <div>
@@ -131,6 +137,35 @@ function SignupPage() {
               <p className="mt-2 text-sm font-medium text-slate-500">Choose your role and complete your signup details.</p>
             </div>
 
+            <div className="mb-6">
+              <div className="mb-3 text-xs font-black uppercase tracking-[0.22em] text-slate-500">1. Select your identity</div>
+              <div className="grid grid-cols-3 gap-3">
+                {ROLE_OPTIONS.map((item) => {
+                  const Icon = ROLE_DETAILS[item.value].icon;
+                  const active = role === item.value;
+                  return (
+                    <button
+                      key={item.value}
+                      type="button"
+                      onClick={() => setRole(item.value)}
+                      className={cn(
+                        "rounded-[1.65rem] border px-4 py-4 text-left transition-all duration-300",
+                        active
+                          ? "border-emerald-400/70 bg-gradient-to-br from-emerald-500 to-lime-500 text-white shadow-[0_18px_45px_-18px_rgba(34,197,94,0.8)]"
+                          : "border-slate-200 bg-white text-slate-600 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg",
+                      )}
+                    >
+                      <Icon className={cn("mb-3 h-5 w-5", active ? "text-white" : "text-slate-500")} />
+                      <div className="text-sm font-black">{item.label}</div>
+                      <div className={cn("mt-1 text-xs font-medium", active ? "text-white/80" : "text-slate-400")}>
+                        {ROLE_DETAILS[item.value].description}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <Button
               type="button"
               variant="outline"
@@ -143,26 +178,8 @@ function SignupPage() {
 
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="role" className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
-                  Role
-                </Label>
-                <Select value={role} onValueChange={(value) => setRole(value as UserRole)}>
-                  <SelectTrigger id="role" className="h-12 rounded-2xl border-slate-200 bg-white font-medium">
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ROLE_OPTIONS.map((item) => (
-                      <SelectItem key={item.value} value={item.value}>
-                        {item.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor="email" className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
-                  Email
+                  2. Email Address
                 </Label>
                 <div className="relative">
                   <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />

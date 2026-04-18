@@ -1,9 +1,15 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import {
+  browserLocalPersistence,
+  browserPopupRedirectResolver,
+  getAuth,
+  GoogleAuthProvider,
+  initializeAuth,
+} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBDDdQAFAQci3oSQVkQIBwvfjBDOg6Tuw0",
+    apiKey: "AIzaSyBDdDQAFAQci3oSQVkQIBwvfjBDOg6Tuw0",
     authDomain: "resqmeal-d62cb.firebaseapp.com",
     projectId: "resqmeal-d62cb",
     storageBucket: "resqmeal-d62cb.firebasestorage.app",
@@ -13,6 +19,11 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-export const auth = getAuth(app);
+export const auth = typeof window === "undefined"
+  ? getAuth(app)
+  : initializeAuth(app, {
+      persistence: browserLocalPersistence,
+      popupRedirectResolver: browserPopupRedirectResolver,
+    });
 export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();

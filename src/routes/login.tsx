@@ -1,16 +1,10 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, LoaderCircle, Lock, Mail, Sparkles } from "lucide-react";
+import { ArrowRight, Building2, Heart, Home, LoaderCircle, Lock, Mail, ShieldCheck, Sparkles, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { loginWithEmail, loginWithGoogle } from "@/lib/firebase-auth";
 import { getDashboardRoute, type UserRole } from "@/lib/auth";
@@ -24,6 +18,12 @@ const ROLE_OPTIONS: Array<{ value: UserRole; label: string }> = [
   { value: "ngo", label: "NGO" },
   { value: "volunteer", label: "Volunteer" },
 ];
+
+const ROLE_DETAILS: Record<UserRole, { icon: typeof Heart; description: string }> = {
+  donor: { icon: Heart, description: "Donate surplus food quickly" },
+  ngo: { icon: Building2, description: "Claim and distribute meals" },
+  volunteer: { icon: Truck, description: "Support rescue logistics" },
+};
 
 export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>): LoginSearch => ({
@@ -63,7 +63,7 @@ function LoginPage() {
     const normalizedEmail = email.trim().toLowerCase();
 
     try {
-      const data = await loginWithEmail(normalizedEmail, password);
+      const data = await loginWithEmail(normalizedEmail, password, role);
 
       if (data.role !== role) {
         throw new Error(`This account belongs to ${data.role.toUpperCase()}. Please choose the correct role.`);
@@ -97,26 +97,32 @@ function LoginPage() {
     <div className="min-h-screen bg-[#F5F7FB] px-6 py-10 text-foreground">
       <div className="mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-6xl overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_30px_90px_-40px_rgba(15,23,42,0.45)]">
         <aside className="hidden w-1/2 flex-col justify-between bg-[radial-gradient(circle_at_10%_10%,rgba(52,211,153,0.35),transparent_45%),linear-gradient(160deg,#0f172a,#111827_55%,#1e293b)] p-10 text-white lg:flex">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 backdrop-blur">
-              <Sparkles className="h-5 w-5 text-emerald-300" />
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 backdrop-blur">
+                <Sparkles className="h-5 w-5 text-emerald-300" />
+              </div>
+              <div>
+                <div className="text-xl font-black tracking-tight">ResQMeal</div>
+                <div className="text-xs font-bold uppercase tracking-[0.28em] text-emerald-200/75">Smart Rescue Network</div>
+              </div>
             </div>
-            <div>
-              <div className="text-xl font-black tracking-tight">ResQMeal</div>
-              <div className="text-xs font-bold uppercase tracking-[0.28em] text-emerald-200/75">Smart Rescue Network</div>
-            </div>
+            <Link to="/" className="inline-flex items-center gap-2 text-sm font-bold text-white/80 transition hover:text-white">
+              <Home className="h-4 w-4" />
+              Back to Home
+            </Link>
           </div>
 
           <div>
             <div className="mb-4 inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.24em] text-emerald-200">
               Secure Access
             </div>
-            <h1 className="max-w-md text-5xl font-black leading-tight tracking-tighter">
-              Welcome back to your rescue dashboard.
-            </h1>
-            <p className="mt-5 max-w-md text-base font-medium leading-relaxed text-white/70">
-              Log in with your role-specific account to continue managing food rescue operations.
-            </p>
+              <h1 className="max-w-md text-5xl font-black leading-tight tracking-tighter">
+              Join the intelligence-driven food rescue movement.
+              </h1>
+              <p className="mt-5 max-w-md text-base font-medium leading-relaxed text-white/70">
+              Our predictive models ensure every surplus meal is directed exactly where it is needed most, at the perfect time.
+              </p>
           </div>
 
           <p className="text-sm font-medium text-white/70">
@@ -131,7 +137,36 @@ function LoginPage() {
           <div className="w-full max-w-md">
             <div className="mb-8">
               <h1 className="text-3xl font-black tracking-tight text-slate-900">Sign in</h1>
-              <p className="mt-2 text-sm font-medium text-slate-500">Choose your role and continue to your dashboard.</p>
+              <p className="mt-2 text-sm font-medium text-slate-500">Sign in to your dashboard to continue.</p>
+            </div>
+
+            <div className="mb-6">
+              <div className="mb-3 text-xs font-black uppercase tracking-[0.22em] text-slate-500">1. Select your identity</div>
+              <div className="grid grid-cols-3 gap-3">
+                {ROLE_OPTIONS.map((item) => {
+                  const Icon = ROLE_DETAILS[item.value].icon;
+                  const active = role === item.value;
+                  return (
+                    <button
+                      key={item.value}
+                      type="button"
+                      onClick={() => setRole(item.value)}
+                      className={cn(
+                        "rounded-[1.65rem] border px-4 py-4 text-left transition-all duration-300",
+                        active
+                          ? "border-emerald-400/70 bg-gradient-to-br from-emerald-500 to-lime-500 text-white shadow-[0_18px_45px_-18px_rgba(34,197,94,0.8)]"
+                          : "border-slate-200 bg-white text-slate-600 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg",
+                      )}
+                    >
+                      <Icon className={cn("mb-3 h-5 w-5", active ? "text-white" : "text-slate-500")} />
+                      <div className="text-sm font-black">{item.label}</div>
+                      <div className={cn("mt-1 text-xs font-medium", active ? "text-white/80" : "text-slate-400")}>
+                        {ROLE_DETAILS[item.value].description}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <Button
@@ -146,26 +181,8 @@ function LoginPage() {
 
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="role" className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
-                  Role
-                </Label>
-                <Select value={role} onValueChange={(value) => setRole(value as UserRole)}>
-                  <SelectTrigger id="role" className="h-12 rounded-2xl border-slate-200 bg-white font-medium">
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ROLE_OPTIONS.map((item) => (
-                      <SelectItem key={item.value} value={item.value}>
-                        {item.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor="email" className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
-                  Email
+                  2. Email Address
                 </Label>
                 <div className="relative">
                   <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -219,7 +236,7 @@ function LoginPage() {
                   </>
                 ) : (
                   <>
-                    Sign in
+                    Sign In with Email
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </>
                 )}

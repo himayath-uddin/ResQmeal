@@ -34,7 +34,12 @@ def get_db():
         if not mongo_uri:
             raise RuntimeError("MONGO_URI is not configured.")
 
-        client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000, connect=False)
+        client = MongoClient(
+            mongo_uri,
+            serverSelectionTimeoutMS=5000,
+            connect=False,
+            tlsAllowInvalidCertificates=True,
+        )
         db = client["resqmeal"]
 
     if not _users_index_ready:
@@ -60,6 +65,13 @@ def serialize_user(user):
         "email": user["email"],
         "role": user["role"],
     }
+
+def estimate_time_left_minutes(expiry_time):
+    try:
+        expiry = datetime.fromisoformat(expiry_time)
+        return max(30, int((expiry - datetime.now(timezone.utc)).total_seconds() / 60))
+    except Exception:
+        return 180
 
 def get_database_or_response():
     try:
@@ -180,6 +192,59 @@ def create_food():
         insert_data["_id"] = str(result.inserted_id)
         insert_data["id"] = str(result.inserted_id)
         return jsonify(insert_data), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/ai/preview", methods=["POST", "OPTIONS"])
+def preview_ai():
+    try:
+        data = request.json or {}
+        quantity = int(data.get("qty", 0) or 0)
+        tags = data.get("tags", []) or []
+        if not isinstance(tags, list):
+            tags = [str(tags)]
+        expiry_time = data.get("expiry_time")
+        time_left = estimate_time_left_minutes(expiry_time) if expiry_time else 180
+        location = str(data.get("location", "")).strip()
+
+        preview = ai_service.preview_listing(
+            title=str(data.get("title", "")).strip(),
+            quantity=quantity,
+            time_left=time_left,
+            tags=tags,
+            location=location,
+        )
+
+        risk_score = 20
+        if quantity >= 100:
+            risk_score += 25
+        elif quantity >= 50:
+            risk_score += 12
+        if time_left <= 90:
+            risk_score += 30
+        elif time_left <= 180:
+            risk_score += 15
+        if "nonveg" in tags:
+            risk_score += 20
+        elif "veg" in tags:
+            risk_score += 8
+
+        estimated_matches = 1
+        if quantity >= 40:
+            estimated_matches += 1
+        if time_left > 120:
+            estimated_matches += 1
+        if location:
+            estimated_matches += 1
+
+        return jsonify({
+            "summary": preview["summary"],
+            "demand_cluster": preview["demand_cluster"],
+            "posting_window": preview["posting_window"],
+            "risk_score": min(risk_score, 95),
+            "estimated_matches": min(estimated_matches, 5),
+            "match_probability": min(55 + estimated_matches * 10, 96),
+        }), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 

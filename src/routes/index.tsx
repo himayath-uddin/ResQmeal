@@ -1,10 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Heart,
-  Search,
   Sparkles,
   Route as RouteIcon,
-  BellRing,
   TrendingUp,
   Utensils,
   Building2,
@@ -15,11 +13,12 @@ import {
   Mail,
   ArrowRight,
   Play,
-  ShieldCheck,
   Activity,
-  Star
+  Star,
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -68,22 +67,25 @@ const features = [
 ];
 
 function Index() {
+  const { user } = useAuth();
+  const primaryCta = !user
+    ? { to: "/login", label: "Start Claiming Donated Food" }
+    : user.role === "ngo"
+      ? { to: "/ngo-dashboard", label: "Start Claiming Donated Food" }
+      : user.role === "volunteer"
+        ? { to: "/volunteer-dashboard", label: "Open Volunteer Dashboard" }
+        : { to: "/donor-dashboard", label: "Start Donating Now" };
+
+  const secondaryCta = !user
+    ? { to: "/signup", label: "Start Donating Now", icon: ArrowRight }
+    : user.role === "ngo"
+      ? { to: "/analytics", label: "View NGO Insights", icon: TrendingUp }
+    : user.role === "volunteer"
+        ? { to: "/analytics", label: "View Route Insights", icon: TrendingUp }
+        : { to: "/ngo-dashboard", label: "View Claim Feed", icon: Play };
+
   return (
     <div className="bg-background text-foreground overflow-hidden relative">
-      
-      {/* Floating Top Navbar Panel */}
-      <header className="absolute top-6 right-6 lg:top-8 lg:right-12 z-50 pointer-events-none">
-          <div className="pointer-events-auto bg-slate-900/95 backdrop-blur-2xl border border-slate-700/50 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.5)] rounded-2xl p-2 flex items-center gap-5 pr-5 transition-all hover:scale-[1.02] hover:shadow-[0_20px_50px_-15px_rgba(16,185,129,0.3)]">
-             <div className="bg-emerald-500/10 rounded-xl px-4 py-2.5 flex items-center gap-2.5 border border-emerald-500/20 shadow-inner">
-                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Secure Network</span>
-             </div>
-             <Link to="/login" className="flex items-center gap-2 text-[13px] font-bold text-white hover:text-emerald-400 transition-colors">
-               Sign In to Portal <ArrowRight className="h-4 w-4" />
-             </Link>
-          </div>
-      </header>
-
       {/* Ultra Premium Hero Section */}
       <section className="relative px-6 lg:px-12 pt-24 lg:pt-36 pb-24 lg:pb-32 overflow-hidden border-b border-border/50">
         {/* Abstract Background Glows */}
@@ -113,13 +115,14 @@ function Index() {
             
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
               <Button asChild size="lg" className="gradient-primary text-white hover:shadow-[0_0_40px_rgba(16,185,129,0.4)] hover:scale-[1.02] transition-all duration-300 h-14 px-8 rounded-2xl text-[15px] font-bold border border-white/20">
-                <Link to="/donate">
-                  Start Donating Now <ArrowRight className="ml-2 h-5 w-5" />
+                <Link to={primaryCta.to}>
+                  {primaryCta.label} <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="glass bg-background/50 backdrop-blur-xl border-border/80 h-14 px-8 rounded-2xl hover:bg-background/80 hover:scale-[1.02] transition-smooth text-[15px] font-bold text-foreground shadow-sm">
-                <Link to="/ngo">
-                  <Play className="mr-2 h-5 w-5 fill-foreground" /> View Live Dispatch
+                <Link to={secondaryCta.to}>
+                  {secondaryCta.icon === Play ? <Play className="mr-2 h-5 w-5 fill-foreground" /> : <TrendingUp className="mr-2 h-5 w-5" />}
+                  {secondaryCta.label}
                 </Link>
               </Button>
             </div>
@@ -281,10 +284,10 @@ function Index() {
             </div>
             <div className="flex flex-col sm:flex-row gap-4 lg:justify-end">
               <Button asChild size="lg" className="gradient-primary h-16 w-full sm:w-auto px-10 rounded-2xl shadow-[0_0_40px_rgba(16,185,129,0.3)] hover:scale-105 transition-all duration-300 text-lg font-bold border border-white/20">
-                <Link to="/login">Get Started <ArrowRight className="ml-2 h-5 w-5" /></Link>
+                <Link to={primaryCta.to}>{primaryCta.label} <ArrowRight className="ml-2 h-5 w-5" /></Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="h-16 w-full sm:w-auto px-10 rounded-2xl bg-white/10 text-white border-white/20 hover:bg-white/20 hover:text-white transition-all text-lg font-bold backdrop-blur-md">
-                <Link to="/analytics">View Impact</Link>
+                <Link to={!user ? "/login" : "/analytics"}>{!user ? "Sign In to Portal" : "View Impact"}</Link>
               </Button>
             </div>
           </div>

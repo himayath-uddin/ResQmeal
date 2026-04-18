@@ -19,19 +19,19 @@ const publicNav = [
 ];
 
 const donorNav = [
-  { to: "/donate", label: "Donor Dashboard", icon: LayoutDashboard },
+  { to: "/donor-dashboard", label: "Donor Dashboard", icon: LayoutDashboard },
   { to: "/analytics", label: "Insights", icon: Sparkles },
-  { to: "/tracking", label: "Map", icon: Map },
+  { to: "/map", label: "Map", icon: Map },
 ];
 
 const ngoNav = [
-  { to: "/ngo", label: "NGO Dashboard", icon: LayoutDashboard },
-  { to: "/tracking", label: "Map", icon: Map },
+  { to: "/ngo-dashboard", label: "NGO Dashboard", icon: LayoutDashboard },
+  { to: "/map", label: "Map", icon: Map },
   { to: "/analytics", label: "Insights", icon: Sparkles },
 ];
 
 const volunteerNav = [
-  { to: "/tracking", label: "Volunteer Dashboard", icon: LayoutDashboard },
+  { to: "/volunteer-dashboard", label: "Volunteer Dashboard", icon: LayoutDashboard },
   { to: "/analytics", label: "Insights", icon: Sparkles },
 ];
 
@@ -79,8 +79,8 @@ export function AppShell() {
   return (
     <div className="min-h-screen flex flex-col w-full font-sans overflow-x-hidden">
       <header className="sticky top-0 z-50 px-4 pt-4 sm:px-6 lg:px-8">
-        <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 rounded-[2rem] border border-white/15 bg-[#0B0F19]/82 px-4 py-3 text-white shadow-[0_24px_80px_-28px_rgba(11,15,25,0.85)] backdrop-blur-2xl sm:px-6">
-          <div className="flex min-w-0 items-center gap-4 lg:gap-8">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 rounded-[2rem] border border-white/15 bg-[#0B0F19]/82 px-4 py-3 text-white shadow-[0_24px_80px_-28px_rgba(11,15,25,0.85)] backdrop-blur-2xl sm:px-6">
+          <div className="flex min-w-0 flex-1 items-center gap-4 lg:gap-8">
             <Link to="/" className="flex items-center gap-3 group">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl gradient-primary shadow-glow transition-all duration-300 group-hover:scale-105 group-hover:rotate-3">
                 <Sparkles className="h-4 w-4 text-white" />
@@ -93,7 +93,7 @@ export function AppShell() {
               </div>
             </Link>
 
-            <nav className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2 py-1 lg:flex">
+            <nav className="hidden min-w-0 flex-1 items-center gap-2 overflow-x-auto rounded-full border border-white/10 bg-white/5 px-2 py-1 lg:flex">
               {nav.map((item) => {
                 const active = location.pathname === item.to || (location.pathname === "/" && item.to === "/");
                 const Icon = item.icon;
@@ -102,7 +102,7 @@ export function AppShell() {
                     key={item.to}
                     to={item.to}
                     className={cn(
-                      "flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-smooth",
+                      "flex shrink-0 whitespace-nowrap items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-smooth",
                       active
                         ? "bg-white text-slate-900 shadow-[0_10px_30px_-15px_rgba(255,255,255,0.75)]"
                         : "text-white/68 hover:bg-white/10 hover:text-white",
@@ -116,27 +116,26 @@ export function AppShell() {
             </nav>
           </div>
 
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="hidden items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-emerald-300 md:flex">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <div className="hidden items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-emerald-300 xl:flex">
               <span className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />
               AI Routing Active
             </div>
 
             {user ? (
               <>
-                <div className="hidden items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 sm:flex">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-sm font-black text-white shadow-inner">
-                    {userLabel.slice(0, 1)}
-                  </div>
-                  <div className="text-left">
-                    <div className="text-sm font-bold leading-tight text-white">{userLabel}</div>
-                    <div className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">{roleLabel}</div>
-                  </div>
+                <div
+                  aria-label={`${userLabel} ${roleLabel}`}
+                  title={`${userLabel} • ${roleLabel}`}
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm font-black text-white shadow-inner"
+                >
+                  {userLabel.slice(0, 1)}
                 </div>
                 <button
                   type="button"
                   onClick={handleLogout}
                   aria-label="Log out"
+                  title="Logout"
                   className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white shadow-inner transition-smooth hover:-translate-y-0.5 hover:bg-white/10 hover:text-emerald-300"
                 >
                   <LogOut className="h-4 w-4" />
