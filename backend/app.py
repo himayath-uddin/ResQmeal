@@ -7,7 +7,6 @@ from pymongo import MongoClient
 from bson import ObjectId
 from apscheduler.schedulers.background import BackgroundScheduler
 from dotenv import load_dotenv
-from werkzeug.security import check_password_hash, generate_password_hash
 from ai_service import ai_service
 from geopy.distance import geodesic
 
@@ -35,7 +34,7 @@ def serialize_user(user):
     return {
         "user_id": str(user["_id"]),
         "email": user["email"],
-        "name": user.get("name") or email_to_name(user["email"]),
+        "role": user["role"],
     }
 
 @app.route("/", methods=["GET"])
@@ -48,12 +47,13 @@ def signup():
         data = request.json or {}
         email = str(data.get("email", "")).strip().lower()
         password = str(data.get("password", ""))
+        role = str(data.get("role", "")).strip().lower()
 
-        if not email or not password:
-            return jsonify({"error": "Email and password are required."}), 400
+        if not email or not password or not role:
+            return jsonify({"error": "Email, password, and role are required."}), 400
 
-        if len(password) < 6:
-            return jsonify({"error": "Password must be at least 6 characters."}), 400
+        if role not in {"donor", "ngo"}:
+            return jsonify({"error": "Role must be either 'donor' or 'ngo'."}), 400
 
         existing_user = db.users.find_one({"email": email})
         if existing_user:
@@ -61,14 +61,17 @@ def signup():
 
         user = {
             "email": email,
-            "name": email_to_name(email),
-            "password_hash": generate_password_hash(password),
+            "password": password,
+            "role": role,
             "created_at": datetime.now(timezone.utc).isoformat(),
         }
         result = db.users.insert_one(user)
         user["_id"] = result.inserted_id
 
-        return jsonify(serialize_user(user)), 201
+        return jsonify({
+            "message": "User created successfully.",
+            **serialize_user(user),
+        }), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
@@ -83,8 +86,11 @@ def login():
             return jsonify({"error": "Email and password are required."}), 400
 
         user = db.users.find_one({"email": email})
-        if not user or not check_password_hash(user.get("password_hash", ""), password):
-            return jsonify({"error": "Invalid email or password."}), 401
+        if not user:
+            return jsonify({"error": "User does not exist."}), 404
+
+        if user.get("password") != password:
+            return jsonify({"error": "Incorrect password."}), 401
 
         return jsonify(serialize_user(user)), 200
     except Exception as e:
@@ -138,8 +144,8 @@ def get_all_food():
                     donor_id = i["donor_id"]
                     query = {"_id": ObjectId(donor_id)} if len(str(donor_id)) == 24 else {"id": donor_id}
                     user = db.users.find_one(query)
-                    if user and "name" in user:
-                        user_name = user["name"]
+                    if user:
+                        user_name = user.get("name") or email_to_name(user.get("email", ""))
                 except Exception:
                     pass
 
@@ -168,8 +174,8 @@ def get_nearby():
                     donor_id = row["donor_id"]
                     query = {"_id": ObjectId(donor_id)} if len(str(donor_id)) == 24 else {"id": donor_id}
                     user = db.users.find_one(query)
-                    if user and "name" in user:
-                        user_name = user["name"]
+                    if user:
+                        user_name = user.get("name") or email_to_name(user.get("email", ""))
                 except Exception:
                     pass
             row["users"] = {"name": user_name}

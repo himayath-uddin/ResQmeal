@@ -123,7 +123,7 @@ function NgoDashboard() {
   ];
 
   return (
-    <RequireAuth>
+    <RequireAuth allowedRoles={["ngo"]}>
     <div className="px-4 pb-24 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="glass-panel mesh-overlay relative overflow-hidden rounded-[2rem] px-6 py-8 sm:px-8 sm:py-10 animate-fade-up">

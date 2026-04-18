@@ -3,8 +3,17 @@ export const AUTH_STORAGE_KEY = "resqmeal_session";
 export type AuthSession = {
   user_id: string;
   email: string;
-  name: string;
+  role: "donor" | "ngo";
 };
+
+export function getUserLabel(email: string) {
+  const localPart = email.split("@")[0] || "user";
+  return localPart
+    .split(/[._-]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
 
 export function readStoredSession(): AuthSession | null {
   if (typeof window === "undefined") {
@@ -21,7 +30,7 @@ export function readStoredSession(): AuthSession | null {
     if (
       typeof parsed.user_id !== "string" ||
       typeof parsed.email !== "string" ||
-      typeof parsed.name !== "string"
+      (parsed.role !== "donor" && parsed.role !== "ngo")
     ) {
       localStorage.removeItem(AUTH_STORAGE_KEY);
       return null;

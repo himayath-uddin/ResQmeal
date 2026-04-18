@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { getUserLabel } from "@/lib/auth";
 
 export type FoodItem = {
   id: string;
@@ -89,7 +90,7 @@ export function FoodProvider({ children }: { children: ReactNode }) {
     const { data } = await api.post("/food/create", input);
     const nextItem: FoodItem = {
       ...data,
-      users: data.users ?? { name: user?.name || "Unknown User" },
+      users: data.users ?? { name: user?.email ? getUserLabel(user.email) : "Unknown User" },
     };
     setFood((current) => [nextItem, ...current]);
     return nextItem;

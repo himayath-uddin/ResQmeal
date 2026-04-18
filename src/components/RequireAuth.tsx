@@ -2,7 +2,13 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/contexts/AuthContext";
 
-export function RequireAuth({ children }: { children: React.ReactNode }) {
+export function RequireAuth({
+  children,
+  allowedRoles,
+}: {
+  children: React.ReactNode;
+  allowedRoles?: Array<"donor" | "ngo">;
+}) {
   const { user, isReady } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,6 +25,15 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
     }
   }, [isReady, location.pathname, navigate, user]);
 
+  useEffect(() => {
+    if (isReady && user && allowedRoles && !allowedRoles.includes(user.role)) {
+      navigate({
+        to: user.role === "donor" ? "/donate" : "/ngo",
+        replace: true,
+      });
+    }
+  }, [allowedRoles, isReady, navigate, user]);
+
   if (!isReady) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center px-6">
@@ -30,6 +45,10 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
   }
 
   if (!user) {
+    return null;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
     return null;
   }
 

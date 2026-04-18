@@ -11,19 +11,34 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { getUserLabel } from "@/lib/auth";
 
-const nav = [
+const publicNav = [
   { to: "/", label: "Home", icon: Home },
-  { to: "/ngo", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/about", label: "Impact", icon: TrendingUp },
+];
+
+const donorNav = [
+  { to: "/donate", label: "Donor Dashboard", icon: LayoutDashboard },
+  { to: "/analytics", label: "Insights", icon: Sparkles },
+  { to: "/tracking", label: "Map", icon: Map },
+];
+
+const ngoNav = [
+  { to: "/ngo", label: "NGO Dashboard", icon: LayoutDashboard },
   { to: "/tracking", label: "Map", icon: Map },
   { to: "/analytics", label: "Insights", icon: Sparkles },
-  { to: "/about", label: "Impact", icon: TrendingUp },
 ];
 
 export function AppShell() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isReady, logout } = useAuth();
+  const userLabel = user ? getUserLabel(user.email) : "";
+  const roleLabel = user?.role === "ngo" ? "NGO" : "Donor";
+  const nav = user
+    ? [...publicNav, ...(user.role === "donor" ? donorNav : ngoNav)]
+    : publicNav;
 
   const handleLogout = () => {
     logout();
@@ -80,11 +95,11 @@ export function AppShell() {
               <>
                 <div className="hidden items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 sm:flex">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-sm font-black text-white shadow-inner">
-                    {user.name.slice(0, 1)}
+                    {userLabel.slice(0, 1)}
                   </div>
                   <div className="text-left">
-                    <div className="text-sm font-bold leading-tight text-white">{user.name}</div>
-                    <div className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Active User</div>
+                    <div className="text-sm font-bold leading-tight text-white">{userLabel}</div>
+                    <div className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">{roleLabel}</div>
                   </div>
                 </div>
                 <button

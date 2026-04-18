@@ -4,6 +4,7 @@ import { ArrowRight, LoaderCircle, Lock, Mail, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/lib/api";
 
@@ -30,12 +31,15 @@ function LoginPage() {
   const { user, isReady, login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState<"donor" | "ngo">("donor");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const getDashboardRoute = (nextRole: "donor" | "ngo") => (nextRole === "donor" ? "/donate" : "/ngo");
+
   useEffect(() => {
     if (isReady && user) {
-      navigate({ to: search.redirect || "/ngo", replace: true });
+      navigate({ to: search.redirect || getDashboardRoute(user.role), replace: true });
     }
   }, [isReady, navigate, search.redirect, user]);
 
@@ -50,13 +54,18 @@ function LoginPage() {
         password,
       });
 
+      if (data.role !== role) {
+        setError(`This account is registered as ${data.role === "ngo" ? "NGO" : "donor"}. Please choose the correct role.`);
+        return;
+      }
+
       login({
         user_id: data.user_id,
         email: data.email,
-        name: data.name,
+        role: data.role,
       });
 
-      navigate({ to: search.redirect || "/ngo", replace: true });
+      navigate({ to: search.redirect || getDashboardRoute(data.role), replace: true });
     } catch (err: any) {
       setError(err.response?.data?.error || "Unable to log in. Please try again.");
     } finally {
@@ -146,6 +155,21 @@ function LoginPage() {
                     className="h-13 rounded-2xl border-border/70 bg-background pl-11 font-medium"
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                  Role
+                </Label>
+                <Select value={role} onValueChange={(value) => setRole(value as "donor" | "ngo")}>
+                  <SelectTrigger className="h-13 rounded-2xl border-border/70 bg-background font-medium">
+                    <SelectValue placeholder="Choose a role" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-2xl">
+                    <SelectItem value="donor">Donor</SelectItem>
+                    <SelectItem value="ngo">NGO</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {error ? (
