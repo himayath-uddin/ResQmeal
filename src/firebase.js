@@ -9,12 +9,14 @@ import {
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBDdDQAFAQci3oSQVkQIBwvfjBDOg6Tuw0",
-    authDomain: "resqmeal-d62cb.firebaseapp.com",
-    projectId: "resqmeal-d62cb",
-    storageBucket: "resqmeal-d62cb.firebasestorage.app",
-    messagingSenderId: "638632658861",
-    appId: "1:638632658861:web:30b7b4232fb1f82950324"
+  apiKey: "AIzaSyDk9ILzV-Yb8RZ7itsFM07yXCsO9JJAR_A",
+  authDomain: "ai4-impact-food.firebaseapp.com",
+  databaseURL: "https://ai4-impact-food-default-rtdb.firebaseio.com",
+  projectId: "ai4-impact-food",
+  storageBucket: "ai4-impact-food.firebasestorage.app",
+  messagingSenderId: "736554909334",
+  appId: "1:736554909334:web:aae52cf1e9a9cdad270cb7",
+  measurementId: "G-ZYKDH190TL"
 };
 
 const app = initializeApp(firebaseConfig);
