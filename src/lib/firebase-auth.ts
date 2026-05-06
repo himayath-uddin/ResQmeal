@@ -33,7 +33,8 @@ function mapAuthError(error: unknown) {
 
   switch (error.code) {
     case "auth/unauthorized-domain":
-      return new Error("Google sign-in is not enabled for this domain yet. Add localhost and reqml.vercel.app in Firebase Authentication -> Settings -> Authorized domains.");
+      const domain = typeof window !== 'undefined' ? window.location.hostname : 'this domain';
+      return new Error(`Google sign-in is not enabled for ${domain} yet. Add it in Firebase Authentication -> Settings -> Authorized domains.`);
     case "auth/email-already-in-use":
       return new Error("An account with this email already exists.");
     case "auth/invalid-credential":
