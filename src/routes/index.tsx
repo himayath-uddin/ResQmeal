@@ -265,8 +265,144 @@ function Index() {
         </div>
       </section>
 
+      {/* How It Works */}
+      <section className="px-6 lg:px-12 py-28 bg-muted/20 relative">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-20">
+            <div className="inline-flex items-center gap-2 text-[11px] font-black text-primary uppercase tracking-widest mb-4 bg-primary/10 px-3 py-1.5 rounded-full">
+              <RouteIcon className="h-3.5 w-3.5" /> How It Works
+            </div>
+            <h2 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-balance">
+              From surplus to saved in 3 simple steps
+            </h2>
+            <p className="mt-6 text-lg text-muted-foreground font-medium">
+              Our AI-powered pipeline ensures food reaches those who need it most — fast.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 lg:gap-12 relative">
+            {/* Connecting line */}
+            <div className="hidden md:block absolute top-16 left-[17%] right-[17%] h-0.5 bg-gradient-to-r from-primary/30 via-primary to-primary/30" />
+
+            {[
+              {
+                step: "01",
+                title: "List Surplus Food",
+                desc: "Restaurants, caterers, and households post surplus food with photos, quantity, and location. Takes under 60 seconds.",
+                icon: Utensils,
+                color: "from-primary to-emerald-500",
+              },
+              {
+                step: "02",
+                title: "AI Matches Nearest NGO",
+                desc: "Our predictive engine instantly scores urgency, finds the nearest NGO, and optimizes the fastest rescue route.",
+                icon: Sparkles,
+                color: "from-orange-500 to-amber-500",
+              },
+              {
+                step: "03",
+                title: "Volunteer Delivers",
+                desc: "A verified volunteer picks up the food and delivers it to shelters, families, or community kitchens in record time.",
+                icon: Truck,
+                color: "from-blue-500 to-cyan-500",
+              },
+            ].map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <div key={item.step} className="relative text-center animate-fade-up" style={{ animationDelay: `${i * 150}ms` }}>
+                  <div className={`relative mx-auto h-20 w-20 rounded-3xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-8 shadow-lg`}>
+                    <Icon className="h-9 w-9 text-white" />
+                    <div className="absolute -top-3 -right-3 h-8 w-8 rounded-full bg-foreground text-background flex items-center justify-center text-xs font-black shadow-lg">
+                      {item.step}
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground mb-3">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground font-medium leading-relaxed max-w-xs mx-auto">{item.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="px-6 lg:px-12 py-28">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <div className="inline-flex items-center gap-2 text-[11px] font-black text-primary uppercase tracking-widest mb-4 bg-primary/10 px-3 py-1.5 rounded-full">
+              <Heart className="h-3.5 w-3.5" /> What People Say
+            </div>
+            <h2 className="text-4xl lg:text-5xl font-extrabold tracking-tight">
+              Loved by food rescuers everywhere
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                name: "Priya Sharma",
+                role: "Founder, Hope Foundation NGO",
+                quote: "ResQMeal's AI matching has cut our food waste response time by 70%. We now rescue meals we never even knew were available.",
+                avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+                rating: 5,
+              },
+              {
+                name: "Arjun Reddy",
+                role: "Head Chef, Spice Route Restaurants",
+                quote: "As a restaurant chain, we had tonnes of surplus daily. ResQMeal made it effortless to donate instead of dump. Incredible platform.",
+                avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
+                rating: 5,
+              },
+              {
+                name: "Fatima Khan",
+                role: "Volunteer Driver, Hyderabad",
+                quote: "The route optimization saved me 20 minutes per delivery. I can now do 3x more pickups in the same time. This is the future of food rescue.",
+                avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
+                rating: 5,
+              },
+            ].map((t, i) => (
+              <div
+                key={t.name}
+                className="bg-background rounded-3xl border border-border/40 p-8 shadow-sm hover:shadow-elegant hover:-translate-y-1 transition-all duration-500 animate-fade-up"
+                style={{ animationDelay: `${i * 100}ms` }}
+              >
+                <div className="flex items-center gap-1 text-orange-400 mb-5">
+                  {Array.from({ length: t.rating }).map((_, j) => (
+                    <Star key={j} className="w-4 h-4 fill-orange-400" />
+                  ))}
+                </div>
+                <p className="text-sm text-foreground/80 font-medium leading-relaxed mb-6 italic">"{t.quote}"</p>
+                <div className="flex items-center gap-3 pt-5 border-t border-border/30">
+                  <img src={t.avatar} alt={t.name} className="w-11 h-11 rounded-full object-cover border-2 border-background shadow-sm" />
+                  <div>
+                    <div className="font-bold text-sm text-foreground">{t.name}</div>
+                    <div className="text-xs text-muted-foreground font-medium">{t.role}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Trusted By Logos */}
+      <section className="px-6 lg:px-12 py-12 bg-muted/20">
+        <div className="max-w-5xl mx-auto text-center">
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground mb-8">
+            Trusted by leading organizations
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-8 lg:gap-16 opacity-60">
+            {["Zomato", "Swiggy", "ISKCON Food Relief", "Akshaya Patra", "Feeding India", "Robin Hood Army"].map((name) => (
+              <div key={name} className="text-lg lg:text-xl font-black tracking-tight text-muted-foreground/80">
+                {name}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Extreme Premium CTA */}
-      <section className="px-6 lg:px-12 pb-32">
+      <section className="px-6 lg:px-12 py-32">
         <div className="max-w-7xl mx-auto rounded-[3rem] bg-foreground text-background p-12 lg:p-20 relative overflow-hidden shadow-2xl">
           <div className="absolute top-0 right-0 w-full h-full pointer-events-none opacity-50 mix-blend-overlay">
              <img src="https://images.unsplash.com/photo-1557683316-973673baf926?w=1600&auto=format&fit=crop" className="w-full h-full object-cover" />
@@ -293,32 +429,7 @@ function Index() {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="px-6 lg:px-12 pb-12 border-t border-border/50 pt-12">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-2xl gradient-primary flex items-center justify-center shadow-glow">
-              <Sparkles className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <div className="font-extrabold text-xl tracking-tight text-foreground">ResQMeal</div>
-              <div className="text-sm font-medium text-muted-foreground">Predictive Food Rescue.</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            {[Twitter, Github, Linkedin, Mail].map((Icon, i) => (
-              <a
-                key={i}
-                href="#"
-                className="h-11 w-11 rounded-full glass bg-background border-border/80 flex items-center justify-center hover:-translate-y-1 hover:text-primary transition-all duration-300 shadow-sm"
-              >
-                <Icon className="h-5 w-5" />
-              </a>
-            ))}
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
+

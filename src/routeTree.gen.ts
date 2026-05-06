@@ -12,12 +12,16 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as VolunteerDashboardRouteImport } from './routes/volunteer-dashboard'
 import { Route as TrackingRouteImport } from './routes/tracking'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as NgoDashboardRouteImport } from './routes/ngo-dashboard'
 import { Route as NgoRouteImport } from './routes/ngo'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DonorDashboardRouteImport } from './routes/donor-dashboard'
 import { Route as DonateRouteImport } from './routes/donate'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as BrowseRouteImport } from './routes/browse'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -35,6 +39,16 @@ const TrackingRoute = TrackingRouteImport.update({
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NgoDashboardRoute = NgoDashboardRouteImport.update({
@@ -67,6 +81,16 @@ const DonateRoute = DonateRouteImport.update({
   path: '/donate',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BrowseRoute = BrowseRouteImport.update({
+  id: '/browse',
+  path: '/browse',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AnalyticsRoute = AnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
@@ -87,12 +111,16 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
+  '/browse': typeof BrowseRoute
+  '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
   '/donor-dashboard': typeof DonorDashboardRoute
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/ngo': typeof NgoRoute
   '/ngo-dashboard': typeof NgoDashboardRoute
+  '/pricing': typeof PricingRoute
+  '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/tracking': typeof TrackingRoute
   '/volunteer-dashboard': typeof VolunteerDashboardRoute
@@ -101,12 +129,16 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
+  '/browse': typeof BrowseRoute
+  '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
   '/donor-dashboard': typeof DonorDashboardRoute
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/ngo': typeof NgoRoute
   '/ngo-dashboard': typeof NgoDashboardRoute
+  '/pricing': typeof PricingRoute
+  '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/tracking': typeof TrackingRoute
   '/volunteer-dashboard': typeof VolunteerDashboardRoute
@@ -116,12 +148,16 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/analytics': typeof AnalyticsRoute
+  '/browse': typeof BrowseRoute
+  '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
   '/donor-dashboard': typeof DonorDashboardRoute
   '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/ngo': typeof NgoRoute
   '/ngo-dashboard': typeof NgoDashboardRoute
+  '/pricing': typeof PricingRoute
+  '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/tracking': typeof TrackingRoute
   '/volunteer-dashboard': typeof VolunteerDashboardRoute
@@ -132,12 +168,16 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/analytics'
+    | '/browse'
+    | '/contact'
     | '/donate'
     | '/donor-dashboard'
     | '/login'
     | '/map'
     | '/ngo'
     | '/ngo-dashboard'
+    | '/pricing'
+    | '/settings'
     | '/signup'
     | '/tracking'
     | '/volunteer-dashboard'
@@ -146,12 +186,16 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/analytics'
+    | '/browse'
+    | '/contact'
     | '/donate'
     | '/donor-dashboard'
     | '/login'
     | '/map'
     | '/ngo'
     | '/ngo-dashboard'
+    | '/pricing'
+    | '/settings'
     | '/signup'
     | '/tracking'
     | '/volunteer-dashboard'
@@ -160,12 +204,16 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/analytics'
+    | '/browse'
+    | '/contact'
     | '/donate'
     | '/donor-dashboard'
     | '/login'
     | '/map'
     | '/ngo'
     | '/ngo-dashboard'
+    | '/pricing'
+    | '/settings'
     | '/signup'
     | '/tracking'
     | '/volunteer-dashboard'
@@ -175,12 +223,16 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AnalyticsRoute: typeof AnalyticsRoute
+  BrowseRoute: typeof BrowseRoute
+  ContactRoute: typeof ContactRoute
   DonateRoute: typeof DonateRoute
   DonorDashboardRoute: typeof DonorDashboardRoute
   LoginRoute: typeof LoginRoute
   MapRoute: typeof MapRoute
   NgoRoute: typeof NgoRoute
   NgoDashboardRoute: typeof NgoDashboardRoute
+  PricingRoute: typeof PricingRoute
+  SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
   TrackingRoute: typeof TrackingRoute
   VolunteerDashboardRoute: typeof VolunteerDashboardRoute
@@ -207,6 +259,20 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ngo-dashboard': {
@@ -251,6 +317,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DonateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/browse': {
+      id: '/browse'
+      path: '/browse'
+      fullPath: '/browse'
+      preLoaderRoute: typeof BrowseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/analytics': {
       id: '/analytics'
       path: '/analytics'
@@ -279,12 +359,16 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AnalyticsRoute: AnalyticsRoute,
+  BrowseRoute: BrowseRoute,
+  ContactRoute: ContactRoute,
   DonateRoute: DonateRoute,
   DonorDashboardRoute: DonorDashboardRoute,
   LoginRoute: LoginRoute,
   MapRoute: MapRoute,
   NgoRoute: NgoRoute,
   NgoDashboardRoute: NgoDashboardRoute,
+  PricingRoute: PricingRoute,
+  SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
   TrackingRoute: TrackingRoute,
   VolunteerDashboardRoute: VolunteerDashboardRoute,

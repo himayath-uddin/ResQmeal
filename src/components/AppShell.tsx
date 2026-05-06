@@ -8,31 +8,41 @@ import {
   TrendingUp,
   LogIn,
   Menu,
+  UtensilsCrossed,
+  CreditCard,
+  Settings,
 } from "lucide-react";
+import { Footer } from "@/components/Footer";
+import { NotificationBell } from "@/components/NotificationBell";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { getUserLabel, type UserRole } from "@/lib/auth";
 
 const publicNav = [
   { to: "/", label: "Home", icon: Home },
+  { to: "/browse", label: "Browse Food", icon: UtensilsCrossed },
+  { to: "/pricing", label: "Pricing", icon: CreditCard },
   { to: "/about", label: "Impact", icon: TrendingUp },
 ];
 
 const donorNav = [
-  { to: "/donor-dashboard", label: "Donor Dashboard", icon: LayoutDashboard },
+  { to: "/donor-dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/analytics", label: "Insights", icon: Sparkles },
   { to: "/map", label: "Map", icon: Map },
+  { to: "/settings", label: "Settings", icon: Settings },
 ];
 
 const ngoNav = [
-  { to: "/ngo-dashboard", label: "NGO Dashboard", icon: LayoutDashboard },
+  { to: "/ngo-dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/map", label: "Map", icon: Map },
   { to: "/analytics", label: "Insights", icon: Sparkles },
+  { to: "/settings", label: "Settings", icon: Settings },
 ];
 
 const volunteerNav = [
-  { to: "/volunteer-dashboard", label: "Volunteer Dashboard", icon: LayoutDashboard },
+  { to: "/volunteer-dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/analytics", label: "Insights", icon: Sparkles },
+  { to: "/settings", label: "Settings", icon: Settings },
 ];
 
 function getRoleLabel(role: UserRole) {
@@ -124,6 +134,7 @@ export function AppShell() {
 
             {user ? (
               <>
+                <NotificationBell />
                 <div
                   aria-label={`${userLabel} ${roleLabel}`}
                   title={`${userLabel} • ${roleLabel}`}
@@ -189,6 +200,7 @@ export function AppShell() {
       <main className="flex-1 flex flex-col w-full relative z-0 pt-4 sm:pt-6">
         <Outlet />
       </main>
+      <Footer />
     </div>
   );
 }
